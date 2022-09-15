@@ -1,0 +1,335 @@
+Index: \vuetify\lib\components\VDialog\VDialog.js
+===================================================================
+--- \vuetify\lib\components\VDialog\VDialog.js
++++ \vuetify\lib\components\VDialog\VDialog.js
+@@ -43,17 +43,21 @@
+     transition: {
+       type: [String, Boolean],
+       default: 'dialog-transition'
+     },
+-    width: [String, Number]
++    width: [String, Number],
++    zIndex: {
++      type: [String, Number],
++      default: 200
++    }
+   },
+ 
+   data() {
+     return {
+       activatedBy: null,
+       animate: false,
+       animateTimeout: -1,
+-      stackMinZIndex: 200,
++      stackMinZIndex: this.zIndex || 200,
+       previousActiveElement: null
+     };
+   },
+ 
+Index: \vuetify\lib\components\VMenu\VMenu.js
+===================================================================
+--- \vuetify\lib\components\VMenu\VMenu.js
++++ \vuetify\lib\components\VMenu\VMenu.js
+@@ -120,10 +120,10 @@
+       return {
+         maxHeight: this.calculatedMaxHeight,
+         minWidth: this.calculatedMinWidth,
+         maxWidth: this.calculatedMaxWidth,
+-        top: this.calculatedTop,
+-        left: this.calculatedLeft,
++        top: `calc(${this.calculatedTop} - ${this.scrollY}px + ${this.originalScrollY}px)`,
++        left: `calc(${this.calculatedLeft} - ${this.scrollX}px + ${this.originalScrollX}px)`,
+         transformOrigin: this.origin,
+         zIndex: this.zIndex || this.activeZIndex
+       };
+     }
+Index: \vuetify\lib\components\VSelect\VSelect.js
+===================================================================
+--- \vuetify\lib\components\VSelect\VSelect.js
++++ \vuetify\lib\components\VSelect\VSelect.js
+@@ -678,12 +678,17 @@
+     },
+ 
+     onScroll() {
+       if (!this.isMenuActive) {
+-        requestAnimationFrame(() => this.getContent().scrollTop = 0);
++        requestAnimationFrame(() => 
++        {
++          const content = this.getContent();
++          if (content) content.scrollTop = 0;
++        });
+       } else {
+         if (this.lastItem > this.computedItems.length) return;
+-        const showMoreItems = this.getContent().scrollHeight - (this.getContent().scrollTop + this.getContent().clientHeight) < 200;
++        const content = this.getContent();
++        const showMoreItems = content ? this.getContent().scrollHeight - (this.getContent().scrollTop + this.getContent().clientHeight) < 200 : false;
+ 
+         if (showMoreItems) {
+           this.lastItem += 20;
+         }
+Index: \vuetify\lib\components\VSlideGroup\VSlideGroup.js
+===================================================================
+--- \vuetify\lib\components\VSlideGroup\VSlideGroup.js
++++ \vuetify\lib\components\VSlideGroup\VSlideGroup.js
+@@ -181,9 +181,9 @@
+   },
+ 
+   methods: {
+     onScroll() {
+-      this.$refs.wrapper.scrollLeft = 0;
++      if (this.$refs.wrapper) this.$refs.wrapper.scrollLeft = 0; // TMCDOS
+     },
+ 
+     onFocusin(e) {
+       if (!this.isOverflowing) return; // Focused element is likely to be the root of an item, so a
+Index: \vuetify\lib\components\VTextField\VTextField.js
+===================================================================
+--- \vuetify\lib\components\VTextField\VTextField.js
++++ \vuetify\lib\components\VTextField\VTextField.js
+@@ -441,8 +441,9 @@
+       this.$refs.input.focus();
+     },
+ 
+     onFocus(e) {
++      this.onResize();
+       if (!this.$refs.input) return;
+       const root = attachedRoot(this.$el);
+       if (!root) return;
+ 
+Index: \vuetify\lib\directives\click-outside\index.js
+===================================================================
+--- \vuetify\lib\directives\click-outside\index.js
++++ \vuetify\lib\directives\click-outside\index.js
+@@ -35,10 +35,11 @@
+ }
+ 
+ function directive(e, el, binding, vnode) {
+   const handler = typeof binding.value === 'function' ? binding.value : binding.value.handler;
++  const target = e.target;
+   el._clickOutside.lastMousedownWasOutside && checkEvent(e, el, binding) && setTimeout(() => {
+-    checkIsActive(e, binding) && handler && handler(e);
++    checkIsActive({...e, target}, binding) && handler && handler({...e, target}); 
+   }, 0);
+ }
+ 
+ function handleShadow(el, callback) {
+Index: \vuetify\lib\directives\ripple\index.js
+===================================================================
+--- \vuetify\lib\directives\ripple\index.js
++++ \vuetify\lib\directives\ripple\index.js
+@@ -119,9 +119,9 @@
+           el.style.position = el.dataset.previousPosition;
+           delete el.dataset.previousPosition;
+         }
+ 
+-        animation.parentNode && el.removeChild(animation.parentNode);
++        animation.parentNode && /* el */animation.parentNode.parentNode.removeChild(animation.parentNode);
+       }, 300);
+     }, delay);
+   }
+ 
+Index: \vuetify\lib\mixins\detachable\index.js
+===================================================================
+--- \vuetify\lib\mixins\detachable\index.js
++++ \vuetify\lib\mixins\detachable\index.js
+@@ -28,13 +28,23 @@
+     },
+     contentClass: {
+       type: String,
+       default: ''
++    },
++    scroller:
++    {
++      default: null,
++      validator: validateAttachTarget
+     }
+   },
+   data: () => ({
+     activatorNode: null,
+-    hasDetached: false
++    hasDetached: false,
++    scrollingNode: null,
++    scrollX: 0,
++    scrollY: 0,
++    originalScrollX: 0,
++    originalScrollY: 0 
+   }),
+   watch: {
+     attach() {
+       this.hasDetached = false;
+@@ -42,10 +52,38 @@
+     },
+ 
+     hasContent() {
+       this.$nextTick(this.initDetach);
++    },
++    isActive(val)
++    {
++      if (val)
++      {
++        if (typeof this.scroller === 'string') {
++          // CSS selector
++          this.scrollingNode = document.querySelector(this.scroller);
++        } else if (this.scroller && typeof this.scroller === 'object') {
++          // DOM Element
++          this.scrollingNode = this.scroller;
++        }
++        if (this.scrollingNode)
++        {
++          this.originalScrollX = this.scrollingNode.scrollLeft;
++          this.originalScrollY = this.scrollingNode.scrollTop;
++          this.scrollX = this.originalScrollX;
++          this.scrollY = this.originalScrollY;
++          this.scrollingNode.addEventListener('scroll', this.setScrollOffset, {passive: true});
++        }
++      }
++      else
++      {
++        if (this.scrollingNode)
++        {
++          this.scrollingNode.removeEventListener('scroll', this.setScrollOffset, {passive: true});
++        }
++        this.scrollingNode = null;
++      }
+     }
+-
+   },
+ 
+   beforeMount() {
+     this.$nextTick(() => {
+@@ -95,8 +133,12 @@
+       } else {
+         removeActivator(activator);
+       }
+     }
++    if (this.scrollingNode)
++    {
++      this.scrollingNode.removeEventListener('scroll', this.setScrollOffset, {passive: true});
++    }
+   },
+ 
+   methods: {
+     getScopeIdAttrs() {
+@@ -132,9 +174,13 @@
+       }
+ 
+       target.appendChild(this.$refs.content);
+       this.hasDetached = true;
++    },
++    setScrollOffset(event)
++    {
++      this.scrollX = event.target.scrollLeft;
++      this.scrollY = event.target.scrollTop;
+     }
+-
+   }
+ });
+ //# sourceMappingURL=index.js.map
+\ No newline at end of file
+Index: \vuetify\lib\mixins\menuable\index.js
+===================================================================
+--- \vuetify\lib\mixins\menuable\index.js
++++ \vuetify\lib\mixins\menuable\index.js
+@@ -96,9 +96,9 @@
+   computed: {
+     computedLeft() {
+       const a = this.dimensions.activator;
+       const c = this.dimensions.content;
+-      const activatorLeft = (this.attach !== false ? a.offsetLeft : a.left) || 0;
++      const activatorLeft = (this.attach !== false ? this.getActivatorLeft() : a.left) || 0;
+       const minWidth = Math.max(a.width, c.width);
+       let left = 0;
+       left += activatorLeft;
+       if (this.left || this.$vuetify.rtl && !this.right) left -= minWidth - a.width;
+@@ -117,9 +117,9 @@
+       const a = this.dimensions.activator;
+       const c = this.dimensions.content;
+       let top = 0;
+       if (this.top) top += a.height - c.height;
+-      if (this.attach !== false) top += a.offsetTop;else top += a.top + this.pageYOffset;
++      if (this.attach !== false) top += this.getActivatorTop(); else top += a.top + this.pageYOffset;
+       if (this.offsetY) top += this.top ? -a.height : a.height;
+       if (this.nudgeTop) top -= parseInt(this.nudgeTop);
+       if (this.nudgeBottom) top += parseInt(this.nudgeBottom);
+       return top;
+@@ -130,10 +130,13 @@
+     },
+ 
+     absoluteYOffset() {
+       return this.pageYOffset - this.relativeYOffset;
++    },
++
++    windowContainer() {
++      return typeof this.attach === 'string' ? document.querySelector(this.attach) || document.body : typeof this.attach === 'object' ? this.attach : document.body;
+     }
+-
+   },
+   watch: {
+     disabled(val) {
+       val && this.callDeactivate();
+@@ -274,19 +277,19 @@
+     },
+ 
+     getInnerHeight() {
+       if (!this.hasWindow) return 0;
+-      return window.innerHeight || document.documentElement.clientHeight;
++      return this.attach !== false ? this.windowContainer.clientHeight : window.innerHeight || document.documentElement.clientHeight;
+     },
+ 
+     getOffsetLeft() {
+       if (!this.hasWindow) return 0;
+-      return window.pageXOffset || document.documentElement.scrollLeft;
++      return this.attach !== false ? this.windowContainer.scrollLeft : window.pageXOffset || document.documentElement.scrollLeft;
+     },
+ 
+     getOffsetTop() {
+       if (!this.hasWindow) return 0;
+-      return window.pageYOffset || document.documentElement.scrollTop;
++      return this.attach !== false ? this.windowContainer.scrollTop : window.pageYOffset || document.documentElement.scrollTop;
+     },
+ 
+     getRoundedBoundedClientRect(el) {
+       const rect = el.getBoundingClientRect();
+@@ -368,19 +371,38 @@
+       this.sneakPeek(() => {
+         if (this.$refs.content) {
+           if (this.$refs.content.offsetParent) {
+             const offsetRect = this.getRoundedBoundedClientRect(this.$refs.content.offsetParent);
+-            this.relativeYOffset = window.pageYOffset + offsetRect.top;
++            this.relativeYOffset = (this.attach !== false ? this.windowContainer.scrollTop : window.pageYOffset) + offsetRect.top;
+             dimensions.activator.top -= this.relativeYOffset;
+-            dimensions.activator.left -= window.pageXOffset + offsetRect.left;
++            dimensions.activator.left -= (this.attach !== false ? this.windowContainer.scrollLeft : window.pageXOffset) + offsetRect.left;
+           }
+ 
+           dimensions.content = this.measure(this.$refs.content);
+         }
+ 
+         this.dimensions = dimensions;
+       });
++    },
++
++    getActivatorTop() {
++      let result = 0;
++      let elem = this.getActivator();
++      while (elem && elem !== this.windowContainer && this.windowContainer.contains(elem)) {
++        result += elem.offsetTop;
++        elem = elem.offsetParent;
++      }
++      return result;
++    },
++
++    getActivatorLeft() {
++      let result = 0;
++      let elem = this.getActivator();
++      while (elem && elem !== this.windowContainer && this.windowContainer.contains(elem)) {
++        result += elem.offsetLeft;
++        elem = elem.offsetParent;
++      }
++      return result;
+     }
+-
+   }
+ });
+ //# sourceMappingURL=index.js.map
+\ No newline at end of file

@@ -1,0 +1,48 @@
+Index: \vue-eslint-parser\index.js
+===================================================================
+--- \vue-eslint-parser\index.js
++++ \vue-eslint-parser\index.js
+@@ -2579,8 +2579,9 @@
+         this.tokenStartColumn = -1;
+         this.tokenStartLine = 1;
+         this.namespace = NS.HTML;
+         this.expressionEnabled = false;
++        this.insideMustache = false;
+     }
+     nextToken() {
+         let cp = this.lastCodePoint;
+         while (this.committedToken == null &&
+@@ -2918,9 +2919,12 @@
+             this.reportParseError("eof-before-tag-name");
+             this.appendTokenValue(LESS_THAN_SIGN, "HTMLText");
+             return "DATA";
+         }
+-        this.reportParseError("invalid-first-character-of-tag-name");
++        if(!this.insideMustache)
++        {
++          this.reportParseError("invalid-first-character-of-tag-name");
++        }         
+         this.appendTokenValue(LESS_THAN_SIGN, "HTMLText");
+         return this.reconsumeAs("DATA");
+     }
+     END_TAG_OPEN(cp) {
+@@ -3618,8 +3622,9 @@
+     }
+     V_EXPRESSION_START(cp) {
+         var _a;
+         if (cp === LEFT_CURLY_BRACKET) {
++            this.insideMustache = true;
+             this.startToken("VExpressionStart");
+             this.appendTokenValue(LEFT_CURLY_BRACKET, null);
+             this.appendTokenValue(LEFT_CURLY_BRACKET, null);
+             if (!((_a = this.parserOptions.vueFeatures) === null || _a === void 0 ? void 0 : _a.interpolationAsNonHTML)) {
+@@ -3677,8 +3682,9 @@
+         }
+     }
+     V_EXPRESSION_END(cp) {
+         if (cp === RIGHT_CURLY_BRACKET) {
++            this.insideMustache = false;
+             this.startToken("VExpressionEnd");
+             this.appendTokenValue(RIGHT_CURLY_BRACKET, null);
+             this.appendTokenValue(RIGHT_CURLY_BRACKET, null);
+             return this.vExpressionScriptState
