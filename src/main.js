@@ -60,6 +60,23 @@ window.cleardatainc = new Vue({
           minute: 'numeric',
         }) + ')';
       },
+      integrationTemplates() // eslint-disable-line vue/no-unused-properties
+      {
+        return [
+          {
+            value: 1,
+            text: 'Employee Hours Detail'
+          },
+          {
+            value: 2,
+            text: 'Performance Detail'
+          },
+          {
+            value: 3,
+            text: 'RoyaltySummary'
+          },
+        ];
+      },
     },
   created()
   {

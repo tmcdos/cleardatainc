@@ -12,28 +12,64 @@
         <v-icon>mdi-cog</v-icon>
       </template>
       <template #item.action="{item}">
-        <v-btn icon class="mx-1" color="primary" :disabled="item.status === 'Complete'">
-          <v-icon>mdi-square-edit-outline</v-icon>
-        </v-btn>
-        <v-btn icon class="mx-1" color="primary">
-          <v-icon>mdi-information</v-icon>
-        </v-btn>
-        <v-btn icon class="mx-1" color="error">
-          <v-icon>mdi-close-thick</v-icon>
-        </v-btn>
+        <v-tooltip top>
+          <template #activator="{on}">
+            <v-btn icon class="mx-1" color="primary" :disabled="item.status === 'Complete'" v-on="on" @click="currentIntegration = item,dlgEdit = true">
+              <v-icon>mdi-square-edit-outline</v-icon>
+            </v-btn>
+          </template>
+          Edit integration
+        </v-tooltip>
+        <v-tooltip top>
+          <template #activator="{on}">
+            <v-btn icon class="mx-1" color="primary" v-on="on" @click="currentIntegration = item,dlgDetails = true">
+              <v-icon>mdi-information</v-icon>
+            </v-btn>
+          </template>
+          View details
+        </v-tooltip>
+        <v-tooltip top>
+          <template #activator="{on}">
+            <v-btn icon class="mx-1" color="error" v-on="on" @click="currentIntegration = item,dlgDelete = true">
+              <v-icon>mdi-close-thick</v-icon>
+            </v-btn>
+          </template>
+          Delete integration
+        </v-tooltip>
       </template>
     </v-data-table>
+    <!-- Dialogs -->
+    <NewIntegration v-model="dlgIntegration" @save="fetchData" />
+    <IntegrationEdit v-model="dlgEdit" :integration="currentIntegration" @update="doUpdate" />
+    <IntegrationDetails v-model="dlgDetails" :integration="currentIntegration" />
+    <ConfirmationDialog v-model="dlgDelete" :caption="(currentIntegration || {}).name || 'N/A'" @confirm="doDelete">Do you really want to delete this integration?</ConfirmationDialog>
   </div>
 </template>
 
 <script>
+import IntegrationDetails from './dialogs/IntegrationDetails.vue';
+import ConfirmationDialog from './dialogs/ConfirmationDialog.vue';
+import IntegrationEdit from './dialogs/IntegrationEdit.vue';
+import NewIntegration from './dialogs/NewIntegration.vue';
+
 export default
 {
   name: 'HomePage',
+  components:
+    {
+      IntegrationDetails,
+      ConfirmationDialog,
+      IntegrationEdit,
+      NewIntegration,
+    },
   data()
   {
     return {
       dlgIntegration: false,
+      dlgDetails: false,
+      dlgDelete: false,
+      dlgEdit: false,
+      currentIntegration: null,
       integrations: [
         {
           id: 1,
@@ -41,6 +77,43 @@ export default
           status: 'In progress',
           numSources: 3,
           date: '2022-05-12 12:02:00',
+          sources: [
+            {
+              id: 1,
+              name: 'CDI-01-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-01-01',
+              toDate: '2022-01-15',
+            },
+            {
+              id: 2,
+              name: 'CDI-02-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-02-01',
+              toDate: '2022-03-15',
+            },
+            {
+              id: 3,
+              name: 'CDI-03-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-06-01',
+              toDate: '2022-06-15',
+            },
+            {
+              id: 4,
+              name: 'CDI-04-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-01-01',
+              toDate: '2022-01-15',
+            },
+            {
+              id: 5,
+              name: 'CDI-05-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-02-01',
+              toDate: '2022-02-15',
+            },
+          ],
         },
         {
           id: 2,
@@ -48,6 +121,43 @@ export default
           status: 'Complete',
           numSources: 1,
           date: '2022-05-08 11:34:00',
+          sources: [
+            {
+              id: 1,
+              name: 'CDI-01-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-01-01',
+              toDate: '2022-01-15',
+            },
+            {
+              id: 2,
+              name: 'CDI-02-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-02-01',
+              toDate: '2022-03-15',
+            },
+            {
+              id: 3,
+              name: 'CDI-03-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-06-01',
+              toDate: '2022-06-15',
+            },
+            {
+              id: 4,
+              name: 'CDI-04-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-01-01',
+              toDate: '2022-01-15',
+            },
+            {
+              id: 5,
+              name: 'CDI-05-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-02-01',
+              toDate: '2022-02-15',
+            },
+          ],
         },
         {
           id: 3,
@@ -55,6 +165,43 @@ export default
           status: 'Complete',
           numSources: 1,
           date: '2022-04-30 13:52:00',
+          sources: [
+            {
+              id: 1,
+              name: 'CDI-01-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-01-01',
+              toDate: '2022-01-15',
+            },
+            {
+              id: 2,
+              name: 'CDI-02-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-02-01',
+              toDate: '2022-03-15',
+            },
+            {
+              id: 3,
+              name: 'CDI-03-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-06-01',
+              toDate: '2022-06-15',
+            },
+            {
+              id: 4,
+              name: 'CDI-04-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-01-01',
+              toDate: '2022-01-15',
+            },
+            {
+              id: 5,
+              name: 'CDI-05-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-02-01',
+              toDate: '2022-02-15',
+            },
+          ],
         },
         {
           id: 4,
@@ -62,6 +209,43 @@ export default
           status: 'Complete',
           numSources: 2,
           date: '2022-04-30 10:30:21',
+          sources: [
+            {
+              id: 1,
+              name: 'CDI-01-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-01-01',
+              toDate: '2022-01-15',
+            },
+            {
+              id: 2,
+              name: 'CDI-02-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-02-01',
+              toDate: '2022-03-15',
+            },
+            {
+              id: 3,
+              name: 'CDI-03-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-06-01',
+              toDate: '2022-06-15',
+            },
+            {
+              id: 4,
+              name: 'CDI-04-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-01-01',
+              toDate: '2022-01-15',
+            },
+            {
+              id: 5,
+              name: 'CDI-05-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-02-01',
+              toDate: '2022-02-15',
+            },
+          ],
         },
         {
           id: 5,
@@ -69,6 +253,43 @@ export default
           status: 'Complete',
           numSources: 3,
           date: '2022-04-28 09:12:40',
+          sources: [
+            {
+              id: 1,
+              name: 'CDI-01-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-01-01',
+              toDate: '2022-01-15',
+            },
+            {
+              id: 2,
+              name: 'CDI-02-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-02-01',
+              toDate: '2022-03-15',
+            },
+            {
+              id: 3,
+              name: 'CDI-03-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-06-01',
+              toDate: '2022-06-15',
+            },
+            {
+              id: 4,
+              name: 'CDI-04-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-01-01',
+              toDate: '2022-01-15',
+            },
+            {
+              id: 5,
+              name: 'CDI-05-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-02-01',
+              toDate: '2022-02-15',
+            },
+          ],
         },
         {
           id: 6,
@@ -76,6 +297,43 @@ export default
           status: 'Complete',
           numSources: 2,
           date: '2022-04-25 15:48:57',
+          sources: [
+            {
+              id: 1,
+              name: 'CDI-01-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-01-01',
+              toDate: '2022-01-15',
+            },
+            {
+              id: 2,
+              name: 'CDI-02-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-02-01',
+              toDate: '2022-03-15',
+            },
+            {
+              id: 3,
+              name: 'CDI-03-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-06-01',
+              toDate: '2022-06-15',
+            },
+            {
+              id: 4,
+              name: 'CDI-04-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-01-01',
+              toDate: '2022-01-15',
+            },
+            {
+              id: 5,
+              name: 'CDI-05-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-02-01',
+              toDate: '2022-02-15',
+            },
+          ],
         },
         {
           id: 7,
@@ -83,6 +341,43 @@ export default
           status: 'Complete',
           numSources: 2,
           date: '2022-04-25 15:48:30',
+          sources: [
+            {
+              id: 1,
+              name: 'CDI-01-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-01-01',
+              toDate: '2022-01-15',
+            },
+            {
+              id: 2,
+              name: 'CDI-02-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-02-01',
+              toDate: '2022-03-15',
+            },
+            {
+              id: 3,
+              name: 'CDI-03-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-06-01',
+              toDate: '2022-06-15',
+            },
+            {
+              id: 4,
+              name: 'CDI-04-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-01-01',
+              toDate: '2022-01-15',
+            },
+            {
+              id: 5,
+              name: 'CDI-05-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-02-01',
+              toDate: '2022-02-15',
+            },
+          ],
         },
         {
           id: 8,
@@ -90,6 +385,43 @@ export default
           status: 'Complete',
           numSources: 3,
           date: '2022-04-20 08:30:00',
+          sources: [
+            {
+              id: 1,
+              name: 'CDI-01-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-01-01',
+              toDate: '2022-01-15',
+            },
+            {
+              id: 2,
+              name: 'CDI-02-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-02-01',
+              toDate: '2022-03-15',
+            },
+            {
+              id: 3,
+              name: 'CDI-03-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-06-01',
+              toDate: '2022-06-15',
+            },
+            {
+              id: 4,
+              name: 'CDI-04-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-01-01',
+              toDate: '2022-01-15',
+            },
+            {
+              id: 5,
+              name: 'CDI-05-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-02-01',
+              toDate: '2022-02-15',
+            },
+          ],
         },
         {
           id: 9,
@@ -97,6 +429,43 @@ export default
           status: 'Complete',
           numSources: 1,
           date: '2022-04-19 11:26:28',
+          sources: [
+            {
+              id: 1,
+              name: 'CDI-01-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-01-01',
+              toDate: '2022-01-15',
+            },
+            {
+              id: 2,
+              name: 'CDI-02-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-02-01',
+              toDate: '2022-03-15',
+            },
+            {
+              id: 3,
+              name: 'CDI-03-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-06-01',
+              toDate: '2022-06-15',
+            },
+            {
+              id: 4,
+              name: 'CDI-04-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-01-01',
+              toDate: '2022-01-15',
+            },
+            {
+              id: 5,
+              name: 'CDI-05-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-02-01',
+              toDate: '2022-02-15',
+            },
+          ],
         },
         {
           id: 10,
@@ -104,6 +473,43 @@ export default
           status: 'Complete',
           numSources: 1,
           date: '2022-04-17 17:32:47',
+          sources: [
+            {
+              id: 1,
+              name: 'CDI-01-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-01-01',
+              toDate: '2022-01-15',
+            },
+            {
+              id: 2,
+              name: 'CDI-02-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-02-01',
+              toDate: '2022-03-15',
+            },
+            {
+              id: 3,
+              name: 'CDI-03-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-06-01',
+              toDate: '2022-06-15',
+            },
+            {
+              id: 4,
+              name: 'CDI-04-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-01-01',
+              toDate: '2022-01-15',
+            },
+            {
+              id: 5,
+              name: 'CDI-05-EmploymentDetails-2022-01-02',
+              rowsProcessed: 123,
+              fromDate: '2022-02-01',
+              toDate: '2022-02-15',
+            },
+          ],
         },
       ],
       showAll: false,
@@ -167,6 +573,18 @@ export default
       fetchData(options)
       {
         //
+      },
+      doDelete()
+      {
+        const id = this.currentIntegration.id;
+        const idx = this.integrations.findIndex(item => item.id === id);
+        if (idx !== -1) this.integrations.splice(idx, 1);
+      },
+      doUpdate(newValue)
+      {
+        const id = this.currentIntegration.id;
+        const idx = this.integrations.findIndex(item => item.id === id);
+        if (idx !== -1) this.integrations.splice(idx, 1, newValue);
       },
     }
 };

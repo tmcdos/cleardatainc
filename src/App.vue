@@ -115,6 +115,11 @@ export default
     padding: 4px;
   }
 
+  .my_tbl.v-data-table
+  {
+    padding-right: 1px;
+  }
+
   table.my_tbl,
   .my_tbl.v-data-table table
   {
@@ -136,11 +141,6 @@ export default
   {
     background-color: #FFCC80;
     box-shadow: inset 0 1px 0 #A5A5A5, inset 0 -1px 0 #A5A5A5;
-  }
-
-  .flex-column
-  {
-    flex-direction: column;
   }
 
   .full-width
