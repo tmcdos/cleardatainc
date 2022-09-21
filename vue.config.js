@@ -16,7 +16,7 @@ module.exports =
         '/api':
           {
             target: process.env.VUE_APP_API_URL,
-            pathRewrite: pathName => pathName.replace(/\/api/, ''),
+            //pathRewrite: pathName => pathName.replace(/\/api/, ''),
             ws: true,
             changeOrigin: true,
             onProxyReq: proxyReq =>

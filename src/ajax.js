@@ -5,7 +5,7 @@ import store from './store';
 import { GET_TOKEN, SET_TOKEN } from '@/store/names';
 import events, { SHOW_SPINNER, HIDE_SPINNER, SNACKBAR_FAILURE, BACKEND_ERROR } from './events';
 
-const BASE_URL = process.env.VUE_APP_API_URL;
+const BASE_URL = process.env.NODE_ENV === 'development' ? '/api' : process.env.VUE_APP_API_URL;
 
 const ajax = axios.create({
   baseURL: BASE_URL,

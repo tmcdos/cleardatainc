@@ -10,7 +10,7 @@
           </v-btn>
         </v-card-title>
         <v-card-text class="pb-2 px-4 pt-4">
-          <v-data-table :items="integration.sources" :headers="tblHeader" item-key="id" class="my_tbl" dense :options="pagination" disable-pagination hide-default-footer disable-sort>
+          <v-data-table :items="sources" :headers="tblHeader" item-key="id" class="my_tbl" dense :options="pagination" disable-pagination hide-default-footer disable-sort>
             <template #item.template="{item}">
               <v-select v-model="item.templateId" :items="$root.integrationTemplates" label="Integration template" outlined dense
                         :rules="[ruleRequired]" hide-details="auto" menu-props="offsetY" class="my-1" style="max-width: 240px;" background-color="white"
@@ -71,13 +71,7 @@ export default
           page: 1,
           itemsPerPage: -1,
         },
-      integration:
-        {
-          sources: [],
-          templateId: null,
-          fromDate: '',
-          toDate: '',
-        },
+      sources: [],
       files: null,
       sourceID: -1,
     };
@@ -138,11 +132,7 @@ export default
         if (newVal)
         {
           this.files = null;
-          this.integration = {
-            sources: [],
-            fromDate: '',
-            toDate: '',
-          };
+          this.sources = [];
         }
       },
       files(newVal)
@@ -151,7 +141,7 @@ export default
         {
           for (let i = 0; i < newVal.length; i++)
           {
-            this.integration.sources.push({
+            this.sources.push({
               id: this.sourceID--,
               name: newVal[i].name,
               templateId: null,
@@ -173,14 +163,28 @@ export default
       {
         if (this.$refs.frm.validate())
         {
-          this.show = false;
-          this.$emit('save', this.integration);
+          const data = new FormData();
+          this.sources.forEach((source, index) =>
+          {
+            data.append(`source[${index}].template_id`, source.templateId);
+            data.append(`source[${index}].from_date`, source.fromDate);
+            data.append(`source[${index}].to_date`, source.toDate);
+            data.append(`source[${index}].source_file`, source.file);
+          });
+          this.$axios.post('/api/integrations/IntegrationImport', data).then(response =>
+          {
+            if (response)
+            {
+              this.show = false;
+              this.$emit('save', response);
+            }
+          });
         }
       },
       doDelete(item)
       {
-        const idx = this.integration.sources.findIndex(source => item.id === source.id);
-        if (idx !== -1) this.integration.sources.splice(idx, 1);
+        const idx = this.sources.findIndex(source => item.id === source.id);
+        if (idx !== -1) this.sources.splice(idx, 1);
       },
     }
 };
