@@ -171,7 +171,7 @@ export default
             data.append(`source[${index}].to_date`, source.toDate);
             data.append(`source[${index}].source_file`, source.file);
           });
-          this.$axios.post('/api/Integrations/IntegrationImport', data).then(response =>
+          this.$axios.post('/Integrations/IntegrationImport', data).then(response =>
           {
             if (response)
             {
