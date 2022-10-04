@@ -1,0 +1,671 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ClearDataInc API",
+    "version": "1.0",
+    "summary": "Small API for ClearData Inc.",
+    "description": "",
+    "contact": {
+      "name": "IVO GELOV"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://dev.cleardataservices.com:44355/api"
+    }
+  ],
+  "paths": {
+    "/integrations": {
+      "parameters": [],
+      "get": {
+        "summary": "Get list of existing integrations",
+        "tags": [],
+        "responses": {
+          "200": {
+            "description": "No errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "integrations": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/OldIntegrationItem"
+                          }
+                        },
+                        "total": {
+                          "type": "integer",
+                          "description": "Total number of all integrations"
+                        }
+                      },
+                      "required": [
+                        "integrations",
+                        "total"
+                      ]
+                    }
+                  }
+                },
+                "examples": {
+                  "example-1": {
+                    "value": {
+                      "data": {
+                        "integrations": [
+                          {
+                            "id": 2,
+                            "name": "CDI-0015",
+                            "status": 1,
+                            "date": "2019-08-24",
+                            "sources": 2
+                          }
+                        ],
+                        "total": 0
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Something wrong happened",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./reference/cleardata.json#/components/schemas/BadCommand"
+                },
+                "examples": {
+                  "example-1": {
+                    "value": {
+                      "error": {
+                        "code": 1001,
+                        "message": "Integration not found"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "list-integrations",
+        "description": "Retrieve the array of existing integrations",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "cookie",
+            "name": "_cleardata",
+            "description": "Session cookie - encoded in Base64URL",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "number",
+              "default": 25,
+              "example": 50
+            },
+            "in": "query",
+            "name": "limit",
+            "description": "How many items by page (at most) to return"
+          },
+          {
+            "schema": {
+              "type": "number",
+              "default": 1,
+              "example": 3
+            },
+            "in": "query",
+            "name": "page",
+            "description": "Which page of the resultset to return (count from 1)"
+          }
+        ]
+      }
+    },
+    "/integration/{id}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "number",
+            "example": 4
+          },
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "ID of the integration"
+        }
+      ],
+      "get": {
+        "summary": "Fetch integration",
+        "tags": [],
+        "operationId": "get-single-integration",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/IntegrationDetails"
+                    }
+                  }
+                },
+                "examples": {
+                  "example-1": {
+                    "value": {
+                      "data": {
+                        "id": 3,
+                        "name": "CDI-0015",
+                        "status": 1,
+                        "date": "2022-09-17",
+                        "sources": [
+                          {
+                            "id": 3,
+                            "name": "CDI-01-EmploymentDetails-2022-01-02",
+                            "rowsProcessed": 14,
+                            "fromDate": "2022-09-23",
+                            "toDate": "2022-09-28"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadCommand"
+                },
+                "examples": {
+                  "example-1": {
+                    "value": {
+                      "error": {
+                        "code": 1001,
+                        "message": "Integration not found"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Fetch details for the given integration",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "cookie",
+            "name": "_cleardata",
+            "description": "Session cookie - encoded in Base64URL",
+            "required": true
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Delete integration",
+        "tags": [],
+        "operationId": "delete-integration",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "boolean",
+                      "default": true,
+                      "description": "True - to simply indicate success"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "examples": {
+                  "example-1": {
+                    "value": {
+                      "data": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadCommand"
+                },
+                "examples": {
+                  "example-1": {
+                    "value": {
+                      "error": {
+                        "code": 1001,
+                        "message": "Integration not found"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Destroy the given integration",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "cookie",
+            "name": "_cleardata",
+            "description": "Session cookie - encoded in Base64URL"
+          }
+        ]
+      },
+      "put": {
+        "summary": "Add sources",
+        "tags": [],
+        "operationId": "edit-integration",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/IntegrationDetails"
+                    }
+                  }
+                },
+                "examples": {
+                  "example-1": {
+                    "value": {
+                      "data": {
+                        "id": 3,
+                        "name": "CDI-0015",
+                        "status": 1,
+                        "date": "2022-09-17",
+                        "sources": [
+                          {
+                            "id": 3,
+                            "name": "CDI-01-EmploymentDetails-2022-01-02",
+                            "rowsProcessed": 14,
+                            "fromDate": "2022-09-23",
+                            "toDate": "2022-09-28"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./reference/cleardata.json#/components/schemas/BadCommand"
+                },
+                "examples": {
+                  "example-1": {
+                    "value": {
+                      "error": {
+                        "code": 1001,
+                        "message": "Integration not found"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Add more sources to the integration",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "cookie",
+            "name": "_cleardata",
+            "description": "Session cookie - encoded in Base64URL",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          },
+          "description": "source\\[0\\].template_id=1\nsource\\[0\\].from_date=2022-11-19\nsource\\[0\\].to_date=2022-11-23\nsource\\[0\\].source_file=binary"
+        }
+      }
+    },
+    "/integrations/import": {
+      "post": {
+        "summary": "Create integration",
+        "tags": [],
+        "operationId": "import-integration",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "boolean",
+                      "default": true,
+                      "description": "Just indicate success"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "examples": {
+                  "example-1": {
+                    "value": {
+                      "data": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadCommand"
+                }
+              }
+            }
+          }
+        },
+        "description": "Create new integration",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "cookie",
+            "name": "_cleardata",
+            "description": "Session cookie - encoded in Base64URL"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "examples": {}
+            }
+          },
+          "description": "source\\[0\\].template_id=1\nsource\\[0\\].from_date=2022-09-17\nsource\\[0\\].to_date=2022-09-20\nsource\\[0\\].source_file=binary"
+        }
+      }
+    },
+    "/integration/{integrationID}/source/{sourceID}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "number"
+          },
+          "name": "integrationID",
+          "in": "path",
+          "required": true,
+          "description": "ID of the integration"
+        },
+        {
+          "schema": {
+            "type": "number"
+          },
+          "name": "sourceID",
+          "in": "path",
+          "required": true,
+          "description": "ID of the source"
+        }
+      ],
+      "delete": {
+        "summary": "Delete source",
+        "tags": [],
+        "operationId": "delete-source",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "boolean",
+                      "default": true,
+                      "description": "Just indicate success"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "examples": {
+                  "example-1": {
+                    "value": {
+                      "data": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadCommand"
+                }
+              }
+            }
+          }
+        },
+        "description": "Delete a source from the given integration",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "cookie",
+            "name": "_cleardata",
+            "description": "Session cookie - encoded in Base64URL"
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "OldIntegrationItem": {
+        "description": "Represents integration item on the Homepage",
+        "type": "object",
+        "x-examples": {
+          "example-1": {
+            "id": 1,
+            "name": "CDI-0015",
+            "status": 1,
+            "date": "2022-05-12 12:02:00",
+            "sources": 3
+          }
+        },
+        "title": "OldIntegrationItem",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 2
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "example": "CDI-0015"
+          },
+          "status": {
+            "type": "number",
+            "description": "1=In progress, 2=Complete",
+            "example": 1
+          },
+          "date": {
+            "type": "string",
+            "minLength": 1,
+            "format": "date"
+          },
+          "sources": {
+            "type": "integer",
+            "example": 2
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "status",
+          "date",
+          "sources"
+        ]
+      },
+      "IntegrationDetails": {
+        "title": "IntegrationDetails",
+        "type": "object",
+        "description": "Details of the given integration",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 3
+          },
+          "name": {
+            "type": "string",
+            "example": "CDI-0015"
+          },
+          "status": {
+            "type": "integer",
+            "enum": [
+              1,
+              2
+            ],
+            "example": 1,
+            "description": "1=In progress, 2=Complete"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "example": "2022-09-17"
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "example": 3
+                },
+                "name": {
+                  "type": "string",
+                  "example": "CDI-01-EmploymentDetails-2022-01-02"
+                },
+                "rowsProcessed": {
+                  "type": "integer",
+                  "example": 14
+                },
+                "fromDate": {
+                  "type": "string",
+                  "format": "date",
+                  "example": "2022-09-23"
+                },
+                "toDate": {
+                  "type": "string",
+                  "format": "date",
+                  "example": "2022-09-28"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "rowsProcessed",
+                "fromDate",
+                "toDate"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "status",
+          "date",
+          "sources"
+        ]
+      },
+      "BadCommand": {
+        "title": "BadCommand",
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": [
+              "code",
+              "message"
+            ],
+            "properties": {
+              "code": {
+                "type": [
+                  "string",
+                  "integer"
+                ],
+                "description": "String or number which uniquely identifies the error - for easier troubleshooting by developers",
+                "example": 1001
+              },
+              "message": {
+                "type": "string",
+                "description": "Suitable for showing to the end user",
+                "example": "Integration not found"
+              }
+            }
+          }
+        },
+        "required": [
+          "error"
+        ]
+      }
+    },
+    "securitySchemes": {}
+  }
+}
