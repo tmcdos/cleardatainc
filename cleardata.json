@@ -511,6 +511,140 @@
           }
         ]
       }
+    },
+    "/login": {
+      "post": {
+        "summary": "Login",
+        "operationId": "login",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "The session cookie - encoded in Base64URL"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "boolean",
+                      "default": true,
+                      "description": "Just to indicate success"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "examples": {
+                  "example-1": {
+                    "value": {
+                      "data": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./reference/cleardata.json#/components/schemas/BadCommand"
+                },
+                "examples": {
+                  "example-1": {
+                    "value": {
+                      "error": {
+                        "code": 1002,
+                        "message": "Wrong username or password"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Login to the system",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "example": "ivo@abv.bg"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "test"
+                  }
+                },
+                "required": [
+                  "username",
+                  "password"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/logout": {
+      "post": {
+        "summary": "Logout",
+        "operationId": "logout",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "boolean",
+                      "default": true,
+                      "description": "Just to indicate success"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "examples": {
+                  "example-1": {
+                    "value": {
+                      "data": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Destroy the session",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "cookie",
+            "name": "_cleardata",
+            "description": "Session cookie - encoded in Base64URL",
+            "required": true
+          }
+        ]
+      }
     }
   },
   "components": {
