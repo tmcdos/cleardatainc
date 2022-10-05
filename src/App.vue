@@ -163,3 +163,5 @@ export default
   }
 
 </style>
+
+<style lang="scss" src="vue-snotify/styles/material.scss"></style>

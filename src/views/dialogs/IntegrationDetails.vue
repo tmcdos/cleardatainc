@@ -9,8 +9,8 @@
         </v-btn>
       </v-card-title>
       <v-card-text class="pb-2">
-        <h2 align="center" class="py-3">Details: {{ (integration || {}).name }}</h2>
-        <v-data-table :items="(integration || {}).sources || []" :headers="tblHeader" item-key="id" class="my_tbl" dense :options="pagination" disable-pagination hide-default-footer disable-sort />
+        <h2 align="center" class="py-3">Details: {{ details.name }}</h2>
+        <v-data-table :items="details.sources || []" :headers="tblHeader" item-key="id" class="my_tbl" dense :options="pagination" disable-pagination hide-default-footer disable-sort />
       </v-card-text>
       <v-card-actions class="justify-center">
         <v-btn color="success" class="px-6" @click="show = false">OK</v-btn>
@@ -39,6 +39,7 @@ export default
   data()
   {
     return {
+      details: {},
       pagination:
         {
           page: 1,
@@ -88,5 +89,25 @@ export default
         ];
       },
     },
+  watch:
+    {
+      value(newVal)
+      {
+        if (newVal) this.fetchData();
+      }
+    },
+  methods:
+    {
+      fetchData()
+      {
+        this.$axios.get('/Integrations/' + this.integration.integration_ID).then(response =>
+        {
+          if (response)
+          {
+            this.details = response;
+          }
+        });
+      }
+    }
 };
 </script>

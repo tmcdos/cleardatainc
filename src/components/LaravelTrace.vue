@@ -12,7 +12,7 @@
         <iframe ref="frame" class="flex-grow-1" style="border: none;" />
       </v-card-text>
       <v-card-actions class="justify-center">
-        <v-btn color="primary" outlined @click="dlgTrace = false">Close</v-btn>
+        <v-btn color="primary" @click="dlgTrace = false">Close</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

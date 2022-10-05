@@ -7,14 +7,15 @@
       <strong>Integrations</strong>
       <template v-if="!showAll"><span class="px-2">(last 10)</span> <a href="javascript:" @click="showAll = true">see all</a></template>
     </div>
-    <v-data-table :items="integrations" :headers="tblHeader" item-key="id" class="my_tbl" dense :server-items-length="total" :options.sync="pagination" :footer-props="footerOptions" @pagination="fetchData">
+    <!-- <v-data-table :items="integrations" :headers="tblHeader" item-key="id" class="my_tbl" dense :server-items-length="total" :options.sync="pagination" :footer-props="footerOptions" @pagination="fetchData"> -->
+    <v-data-table :items="integrations" :headers="tblHeader" item-key="integration_ID" class="my_tbl" dense :options.sync="pagination" hide-default-footer>
       <template #header.action>
         <v-icon>mdi-cog</v-icon>
       </template>
       <template #item.action="{item}">
         <v-tooltip top>
           <template #activator="{on}">
-            <v-btn icon class="mx-1" color="primary" :disabled="item.status === 'Complete'" v-on="on" @click="currentIntegration = item,dlgEdit = true">
+            <v-btn icon class="mx-1" color="primary" :disabled="item.integration_Status_ID > 1" v-on="on" @click="currentIntegration = item,dlgEdit = true">
               <v-icon>mdi-square-edit-outline</v-icon>
             </v-btn>
           </template>
@@ -70,459 +71,18 @@ export default
       dlgDelete: false,
       dlgEdit: false,
       currentIntegration: null,
-      integrations: [
-        {
-          id: 1,
-          name: 'CDI-0015',
-          status: 'In progress',
-          numSources: 3,
-          date: '2022-05-12 12:02:00',
-          sources: [
-            {
-              id: 1,
-              name: 'CDI-01-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-01-01',
-              toDate: '2022-01-15',
-            },
-            {
-              id: 2,
-              name: 'CDI-02-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-02-01',
-              toDate: '2022-03-15',
-            },
-            {
-              id: 3,
-              name: 'CDI-03-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-06-01',
-              toDate: '2022-06-15',
-            },
-            {
-              id: 4,
-              name: 'CDI-04-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-01-01',
-              toDate: '2022-01-15',
-            },
-            {
-              id: 5,
-              name: 'CDI-05-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-02-01',
-              toDate: '2022-02-15',
-            },
-          ],
-        },
-        {
-          id: 2,
-          name: 'CDI-0014',
-          status: 'Complete',
-          numSources: 1,
-          date: '2022-05-08 11:34:00',
-          sources: [
-            {
-              id: 1,
-              name: 'CDI-01-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-01-01',
-              toDate: '2022-01-15',
-            },
-            {
-              id: 2,
-              name: 'CDI-02-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-02-01',
-              toDate: '2022-03-15',
-            },
-            {
-              id: 3,
-              name: 'CDI-03-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-06-01',
-              toDate: '2022-06-15',
-            },
-            {
-              id: 4,
-              name: 'CDI-04-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-01-01',
-              toDate: '2022-01-15',
-            },
-            {
-              id: 5,
-              name: 'CDI-05-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-02-01',
-              toDate: '2022-02-15',
-            },
-          ],
-        },
-        {
-          id: 3,
-          name: 'CDI-0013',
-          status: 'Complete',
-          numSources: 1,
-          date: '2022-04-30 13:52:00',
-          sources: [
-            {
-              id: 1,
-              name: 'CDI-01-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-01-01',
-              toDate: '2022-01-15',
-            },
-            {
-              id: 2,
-              name: 'CDI-02-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-02-01',
-              toDate: '2022-03-15',
-            },
-            {
-              id: 3,
-              name: 'CDI-03-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-06-01',
-              toDate: '2022-06-15',
-            },
-            {
-              id: 4,
-              name: 'CDI-04-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-01-01',
-              toDate: '2022-01-15',
-            },
-            {
-              id: 5,
-              name: 'CDI-05-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-02-01',
-              toDate: '2022-02-15',
-            },
-          ],
-        },
-        {
-          id: 4,
-          name: 'CDI-0012',
-          status: 'Complete',
-          numSources: 2,
-          date: '2022-04-30 10:30:21',
-          sources: [
-            {
-              id: 1,
-              name: 'CDI-01-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-01-01',
-              toDate: '2022-01-15',
-            },
-            {
-              id: 2,
-              name: 'CDI-02-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-02-01',
-              toDate: '2022-03-15',
-            },
-            {
-              id: 3,
-              name: 'CDI-03-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-06-01',
-              toDate: '2022-06-15',
-            },
-            {
-              id: 4,
-              name: 'CDI-04-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-01-01',
-              toDate: '2022-01-15',
-            },
-            {
-              id: 5,
-              name: 'CDI-05-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-02-01',
-              toDate: '2022-02-15',
-            },
-          ],
-        },
-        {
-          id: 5,
-          name: 'CDI-0011',
-          status: 'Complete',
-          numSources: 3,
-          date: '2022-04-28 09:12:40',
-          sources: [
-            {
-              id: 1,
-              name: 'CDI-01-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-01-01',
-              toDate: '2022-01-15',
-            },
-            {
-              id: 2,
-              name: 'CDI-02-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-02-01',
-              toDate: '2022-03-15',
-            },
-            {
-              id: 3,
-              name: 'CDI-03-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-06-01',
-              toDate: '2022-06-15',
-            },
-            {
-              id: 4,
-              name: 'CDI-04-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-01-01',
-              toDate: '2022-01-15',
-            },
-            {
-              id: 5,
-              name: 'CDI-05-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-02-01',
-              toDate: '2022-02-15',
-            },
-          ],
-        },
-        {
-          id: 6,
-          name: 'CDI-0010',
-          status: 'Complete',
-          numSources: 2,
-          date: '2022-04-25 15:48:57',
-          sources: [
-            {
-              id: 1,
-              name: 'CDI-01-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-01-01',
-              toDate: '2022-01-15',
-            },
-            {
-              id: 2,
-              name: 'CDI-02-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-02-01',
-              toDate: '2022-03-15',
-            },
-            {
-              id: 3,
-              name: 'CDI-03-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-06-01',
-              toDate: '2022-06-15',
-            },
-            {
-              id: 4,
-              name: 'CDI-04-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-01-01',
-              toDate: '2022-01-15',
-            },
-            {
-              id: 5,
-              name: 'CDI-05-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-02-01',
-              toDate: '2022-02-15',
-            },
-          ],
-        },
-        {
-          id: 7,
-          name: 'CDI-0009',
-          status: 'Complete',
-          numSources: 2,
-          date: '2022-04-25 15:48:30',
-          sources: [
-            {
-              id: 1,
-              name: 'CDI-01-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-01-01',
-              toDate: '2022-01-15',
-            },
-            {
-              id: 2,
-              name: 'CDI-02-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-02-01',
-              toDate: '2022-03-15',
-            },
-            {
-              id: 3,
-              name: 'CDI-03-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-06-01',
-              toDate: '2022-06-15',
-            },
-            {
-              id: 4,
-              name: 'CDI-04-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-01-01',
-              toDate: '2022-01-15',
-            },
-            {
-              id: 5,
-              name: 'CDI-05-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-02-01',
-              toDate: '2022-02-15',
-            },
-          ],
-        },
-        {
-          id: 8,
-          name: 'CDI-0008',
-          status: 'Complete',
-          numSources: 3,
-          date: '2022-04-20 08:30:00',
-          sources: [
-            {
-              id: 1,
-              name: 'CDI-01-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-01-01',
-              toDate: '2022-01-15',
-            },
-            {
-              id: 2,
-              name: 'CDI-02-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-02-01',
-              toDate: '2022-03-15',
-            },
-            {
-              id: 3,
-              name: 'CDI-03-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-06-01',
-              toDate: '2022-06-15',
-            },
-            {
-              id: 4,
-              name: 'CDI-04-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-01-01',
-              toDate: '2022-01-15',
-            },
-            {
-              id: 5,
-              name: 'CDI-05-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-02-01',
-              toDate: '2022-02-15',
-            },
-          ],
-        },
-        {
-          id: 9,
-          name: 'CDI-0007',
-          status: 'Complete',
-          numSources: 1,
-          date: '2022-04-19 11:26:28',
-          sources: [
-            {
-              id: 1,
-              name: 'CDI-01-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-01-01',
-              toDate: '2022-01-15',
-            },
-            {
-              id: 2,
-              name: 'CDI-02-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-02-01',
-              toDate: '2022-03-15',
-            },
-            {
-              id: 3,
-              name: 'CDI-03-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-06-01',
-              toDate: '2022-06-15',
-            },
-            {
-              id: 4,
-              name: 'CDI-04-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-01-01',
-              toDate: '2022-01-15',
-            },
-            {
-              id: 5,
-              name: 'CDI-05-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-02-01',
-              toDate: '2022-02-15',
-            },
-          ],
-        },
-        {
-          id: 10,
-          name: 'CDI-0006',
-          status: 'Complete',
-          numSources: 1,
-          date: '2022-04-17 17:32:47',
-          sources: [
-            {
-              id: 1,
-              name: 'CDI-01-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-01-01',
-              toDate: '2022-01-15',
-            },
-            {
-              id: 2,
-              name: 'CDI-02-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-02-01',
-              toDate: '2022-03-15',
-            },
-            {
-              id: 3,
-              name: 'CDI-03-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-06-01',
-              toDate: '2022-06-15',
-            },
-            {
-              id: 4,
-              name: 'CDI-04-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-01-01',
-              toDate: '2022-01-15',
-            },
-            {
-              id: 5,
-              name: 'CDI-05-EmploymentDetails-2022-01-02',
-              rowsProcessed: 123,
-              fromDate: '2022-02-01',
-              toDate: '2022-02-15',
-            },
-          ],
-        },
-      ],
-      showAll: false,
-      total: 10,
+      integrations: [],
+      showAll: true,
+      //total: 10,
       pagination:
         {
           page: 1,
-          itemsPerPage: 25,
+          itemsPerPage: -1,
         },
-      footerOptions:
+      /*footerOptions:
         {
-          itemsPerPageOptions: [25, 50, 100],
-        }
+          itemsPerPageOptions: [-1, 25, 50, 100],
+        }*/
     };
   },
   computed:
@@ -537,13 +97,13 @@ export default
           },
           {
             text: 'Integration status',
-            value: 'status',
+            value: 'integration_Status_ID',
             class: 'text-subtitle-1 font-weight-bold',
             align: 'center',
           },
           {
             text: '# of sources',
-            value: 'numSources',
+            value: 'fileToUpload',
             class: 'text-subtitle-1 font-weight-bold',
             align: 'center',
           },
@@ -572,18 +132,41 @@ export default
     {
       fetchData(options)
       {
-        //
+        this.$axios.get('/Integrations').then(response =>
+        {
+          if (response)
+          {
+            this.integrations = response.map(item =>
+            {
+              item.date = new Date(item.last_Modified_Date_Time || item.created_Date_Time).toLocaleString(undefined,
+                {
+                  year: 'numeric',
+                  day: 'numeric',
+                  month: 'short',
+                  hour: 'numeric',
+                  minute: 'numeric',
+                });
+              return item;
+            });
+          }
+        });
       },
       doDelete()
       {
-        const id = this.currentIntegration.id;
-        const idx = this.integrations.findIndex(item => item.id === id);
-        if (idx !== -1) this.integrations.splice(idx, 1);
+        const id = this.currentIntegration.integration_ID;
+        this.$axios.delete('/Integrations/' + id).then(response =>
+        {
+          if (response)
+          {
+            const idx = this.integrations.findIndex(item => item.integration_ID === id);
+            if (idx !== -1) this.integrations.splice(idx, 1);
+          }
+        });
       },
       doUpdate(newValue)
       {
-        const id = this.currentIntegration.id;
-        const idx = this.integrations.findIndex(item => item.id === id);
+        const id = this.currentIntegration.integration_ID;
+        const idx = this.integrations.findIndex(item => item.integration_ID === id);
         if (idx !== -1) this.integrations.splice(idx, 1, newValue);
       },
     }

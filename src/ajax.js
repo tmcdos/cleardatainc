@@ -18,14 +18,18 @@ const ajax = axios.create({
 // we broadcast the error so that an error popup will be shown
 function checkError(err)
 {
-  if (err.response && err.response.status === 404)
-  {
-    events.$emit(SNACKBAR_FAILURE, 'API endpoint was not found');
-  }
-  else if (err.response && err.response.status === 500)
+  if (err.response && (err.response.status === 500 || err.response.headers['content-type'].startsWith('text/html')))
   {
     if (err.response.data) events.$emit(BACKEND_ERROR, err.response.data);
+    else if (err.response && err.response.status === 404)
+    {
+      events.$emit(SNACKBAR_FAILURE, 'API endpoint was not found');
+    }
     else events.$emit(SNACKBAR_FAILURE, err.message || err);
+  }
+  else if (err.response && err.response.status === 404)
+  {
+    events.$emit(SNACKBAR_FAILURE, 'API endpoint was not found');
   }
   else if (err.response && err.response.data)
   {
@@ -74,14 +78,14 @@ function responseInterceptorSuccess(response)
 {
   if (response.config && response.config.spinner && typeof response.config.spinner === 'function') response.config.spinner(false);
   else events.$emit(HIDE_SPINNER);
-  if (response.headers['content-type'] === 'application/json')
+  if (response.headers['content-type'].startsWith('application/json'))
   {
     if ('error' in response.data)
     {
       events.$emit(SNACKBAR_FAILURE, response.data.error.message || response.data.error);
       return undefined;
     }
-    else return response.data.data;
+    else return response.data;
   }
   else if (response.headers['content-disposition'])
   {

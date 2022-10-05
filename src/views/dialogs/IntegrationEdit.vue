@@ -34,7 +34,7 @@
           </v-data-table>
         </v-card-text>
         <v-card-actions class="flex-column align-stretch px-4">
-          <v-file-input v-model="files" label="Add sources" outlined dense clearable accept=".csv"
+          <v-file-input v-model="files" label="Add sources" outlined dense clearable accept=".csv,.xls,.xlsx"
                         prepend-icon="" prepend-inner-icon="mdi-paperclip" hide-details multiple class="mb-4"
           />
           <div class="d-flex justify-center">
@@ -146,10 +146,8 @@ export default
         if (newVal)
         {
           this.files = null;
-          this.temp = {
-            ...this.integration,
-            sources: (this.integration.sources || []).slice(),
-          };
+          this.temp = {};
+          this.fetchData();
         }
       },
       files(newVal)
@@ -177,12 +175,38 @@ export default
     },
   methods:
     {
+      fetchData()
+      {
+        this.$axios.get('/Integrations/' + this.integration.integration_ID).then(response =>
+        {
+          if (response)
+          {
+            if (!response.sources) response.sources = [];
+            this.temp = response;
+          }
+        });
+      },
       updateIntegration()
       {
         if (this.$refs.frm.validate())
         {
-          this.show = false;
-          this.$emit('update', this.temp);
+          const data = new FormData();
+          this.temp.sources.forEach((source, index) =>
+          {
+            data.append(`source[${index}].template_id`, source.templateId);
+            data.append(`source[${index}].from_date`, source.fromDate);
+            data.append(`source[${index}].to_date`, source.toDate);
+            data.append(`source[${index}].source_file`, source.file);
+          });
+
+          this.$axios.put('/Integrations/' + this.integration.integration_ID).then(response =>
+          {
+            if (response)
+            {
+              this.show = false;
+              this.$emit('update', response);
+            }
+          });
         }
       },
       doDelete()

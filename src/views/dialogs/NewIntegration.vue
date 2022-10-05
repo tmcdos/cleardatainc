@@ -30,7 +30,7 @@
           </v-data-table>
         </v-card-text>
         <v-card-actions class="flex-column align-stretch px-4">
-          <v-file-input v-model="files" label="Add sources" outlined dense clearable accept=".csv"
+          <v-file-input v-model="files" label="Add sources" outlined dense clearable accept=".csv,.xls,.xlsx"
                         prepend-icon="" prepend-inner-icon="mdi-paperclip" hide-details multiple class="mb-4"
           />
           <div class="d-flex justify-center">
