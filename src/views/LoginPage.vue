@@ -3,24 +3,13 @@
     <v-form ref="frm" class="ma-auto" @submit.prevent="doLogin">
       <v-card outlined>
         <v-card-title class="primary white--text py-2">LOGIN</v-card-title>
-        <v-card-text class="px-4 pt-5 pb-0">
-          <v-text-field ref="user" v-model.trim="username" label="Username" outlined dense :rules="[ruleRequired]" name="username" autocomplete="username" maxlength="80">
-            <v-icon slot="prepend-inner" class="mr-2">mdi-account-outline</v-icon>
-          </v-text-field>
-          <v-text-field v-model.trim="password" label="Password" outlined dense :rules="[ruleRequired]" name="password" autocomplete="current-password" maxlength="80" :type="showPassword ? 'text' : 'password'">
-            <v-icon slot="prepend-inner" class="mr-2">mdi-lock-outline</v-icon>
-            <v-tooltip slot="append" top>
-              <template #activator="{on}">
-                <v-btn icon class="" v-on="on" @click="showPassword = !showPassword">
-                  <v-icon>{{ showPassword ? 'mdi-eye-off' : 'mdi-eye' }}</v-icon>
-                </v-btn>
-              </template>
-              {{ showPassword ? 'Hide' : 'Reveal' }}
-            </v-tooltip>
-          </v-text-field>
+        <v-card-text class="text-body-1 pt-5">
+          You need a Microsoft account to access this application.
+          <br>
+          Press "Continue" to navigate to Microsoft and log in with your account.
         </v-card-text>
         <v-card-actions class="px-3 pt-1 pb-3 justify-center">
-          <v-btn color="primary" class="px-4" type="submit" :disabled="!(username && password)">Login</v-btn>
+          <v-btn color="primary" class="px-4" type="submit">Continue</v-btn>
         </v-card-actions>
       </v-card>
     </v-form>
@@ -28,42 +17,43 @@
 </template>
 
 <script>
-import validations from '../mixinValidations';
-import { SET_TOKEN, SET_USER } from '@/store/names.js';
+import { SET_TOKEN } from '@/store/names';
 import { mapMutations } from 'vuex';
 
 export default
 {
   name: 'LoginPage',
-  mixins: [validations],
-  data()
+  created()
   {
-    return {
-      username: '',
-      password: '',
-      showPassword: false,
-    };
-  },
-  mounted()
-  {
-    this.$refs.user.focus();
+    if (this.$msal.isAuthenticated())
+    {
+      this.$msal.acquireToken().then(token =>
+      {
+        if (token)
+        {
+          this.$store.commit('SET_TOKEN', token.accessToken);
+          this.$router.push({ name: 'Home' });
+        }
+      });
+    }
   },
   methods:
     {
-      ...mapMutations([SET_USER, SET_TOKEN]),
+      ...mapMutations([SET_TOKEN]),
       doLogin()
       {
-        this[SET_TOKEN]({
-          token: '123',
-          token_type: 'bearer',
-          expires_in: 3600,
+        //this.$msal.instance.browserStorage.clear();
+        this.$msal.loginPopup({
+          scopes: [process.env.VUE_APP_MSAD_SCOPE, 'profile', 'email', 'openid'],
+          prompt: 'select_account',
+        }).then(response =>
+        {
+          if (response)
+          {
+            this.$store.commit('SET_TOKEN', response.accessToken);
+            this.$router.push({ name: 'Home' });
+          }
         });
-        this[SET_USER]({
-          id: 1,
-          email: 'ivo@abv.bg',
-          fullName: 'IVO GELOV',
-        });
-        this.$router.push({ name: 'Home' });
       }
     }
 };

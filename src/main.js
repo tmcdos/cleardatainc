@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import App from './App.vue';
+import msal from './azure';
 import router from './router.js';
 import store from './store';
 import ajax from './ajax';
@@ -13,6 +14,24 @@ import vuetify from './vuetify.js';
 import SNotify from 'vue-snotify';
 import { version } from '../package.json';
 
+Vue.use(msal, {
+  auth:
+    {
+      clientId: process.env.VUE_APP_MSAD_CLIENT_ID,
+      authority: process.env.VUE_APP_MSAD_AUTHORITY,
+      redirectUri: process.env.VUE_APP_MSAD_REDIRECT_URI,
+      postLogoutRedirectUri: process.env.VUE_APP_MSAD_POST_LOGOUT_URI,
+      scopes: [process.env.VUE_APP_MSAD_SCOPE, 'profile', 'email', 'openid'],
+    },
+  cache:
+    {
+      cacheLocation: 'localStorage',
+    },
+  framework:
+    {
+      globalMixin: true,
+    },
+});
 Vue.use(SNotify, {
   toast: {
     titleMaxLength: 30,
@@ -43,7 +62,7 @@ Vue.config.performance = process.env.NODE_ENV !== 'production';
 Vue.config.devtools = process.env.NODE_ENV !== 'production';
 
 window.cleardatainc = new Vue({
-  name: 'Root',
+  name: 'RootVue',
   data: {
     spin: 0,
   },

@@ -16,7 +16,7 @@ module.exports =
         '/api':
           {
             target: process.env.VUE_APP_API_URL,
-            pathRewrite: pathName => pathName.replace(/\/api/, ''),
+            //pathRewrite: pathName => pathName.replace(/\/api/, ''),
             ws: true,
             changeOrigin: true,
             onProxyReq: proxyReq =>
@@ -121,6 +121,22 @@ module.exports =
       options.compilerOptions = { whitespace: 'condense' };
       return options;
     });
+
+    // !!!!!!! -- https://github.com/vuejs/vue-cli/issues/2978#issuecomment-441426094
+    config.output.devtoolModuleFilenameTemplate(info =>
+    {
+      const resPath = path.normalize(info.resourcePath).split(path.sep).join('/');
+      const isVue = resPath.match(/\.vue$/) && resPath.match(/^src/);
+      //const isScript = info.query.match(/type=script/);
+      //const hasModuleId = info.moduleId !== '';
+      const isGenerated = info.allLoaders;
+
+      const generated = `webpack-generated:///${resPath}?${info.hash}`;
+      const vuesource = `vue-source:///${resPath}`;
+
+      return isVue && !isGenerated ? vuesource : generated;
+    });
+    config.output.devtoolFallbackModuleFilenameTemplate('webpack:///[resource-path]?[hash]');
 
     // plugin options must be wrapped inside Array - otherwise error "non-callable @@iterator"
     if (process.env.NODE_ENV === 'development')

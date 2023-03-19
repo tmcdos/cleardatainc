@@ -2,10 +2,10 @@ import axios from 'axios';
 import AxiosIsCancel from 'axios/lib/cancel/isCancel';
 import router from './router';
 import store from './store';
-import { GET_TOKEN, SET_TOKEN } from '@/store/names';
+import { GET_TOKEN } from '@/store/names';
 import events, { SHOW_SPINNER, HIDE_SPINNER, SNACKBAR_FAILURE, BACKEND_ERROR } from './events';
 
-const BASE_URL = process.env.NODE_ENV === 'development' ? '/api' : process.env.VUE_APP_API_URL;
+const BASE_URL = process.env.NODE_ENV === 'development' ? '/api' : process.env.VUE_APP_API_URL + '/api';
 
 const ajax = axios.create({
   baseURL: BASE_URL,
@@ -46,7 +46,7 @@ function requestInterceptorSuccess(config)
   const token = store.getters[GET_TOKEN];
   if (token)
   {
-    config.headers.Authorization = `${token.token_type} ${token.access_token}`;
+    config.headers.Authorization = `Bearer ${typeof token === 'string' ? token : token.accessToken}`;
   }
   if (config.spinner && typeof config.spinner === 'function') config.spinner(true);
   else events.$emit(SHOW_SPINNER);
@@ -121,7 +121,7 @@ function responseInterceptorFailure(error)
   if (error.config && error.response && error.response.status === 401)
   {
     // token has expired
-    store.commit(SET_TOKEN, null);
+    //store.commit(SET_TOKEN, null);
     router.push({ name: 'Login' }).catch(() => true);
   }
   else

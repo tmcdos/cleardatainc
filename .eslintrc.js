@@ -83,10 +83,7 @@ module.exports = {
       'error',
       {
         singleline: 10,
-        multiline: {
-          max: 6,
-          allowFirstLine: true
-        }
+        multiline: 6,
       }
     ],
     'vue/order-in-components': [

@@ -19,8 +19,6 @@
 import CustomFooter from './components/CustomFooter';
 import CustomHeader from './components/CustomHeader.vue';
 import LaravelTrace from '@/components/LaravelTrace';
-import { GET_TOKEN, SET_TOKEN } from '@/store/names';
-import { mapGetters, mapMutations } from 'vuex';
 
 export default
 {
@@ -31,67 +29,6 @@ export default
       CustomFooter,
       LaravelTrace,
     },
-  data()
-  {
-    return {
-      tokenTimer: null,
-    };
-  },
-  computed:
-    {
-      ...mapGetters([GET_TOKEN]),
-    },
-  watch:
-    {
-      [GET_TOKEN]:
-        {
-          immediate: true,
-          handler(newVal)
-          {
-            if (newVal && newVal.expiration)
-            {
-              const expiration = typeof newVal.expiration === 'string' ? new Date(newVal.expiration) : newVal.expiration;
-              if (this.tokenTimer) clearTimeout(this.tokenTimer);
-              const diff = expiration.getTime() - Date.now();
-              if (diff < 5000)
-              {
-                this[SET_TOKEN](null);
-                this.$router.push({ name: 'Login' });
-              }
-              else
-              {
-                if (diff < 100000) this.refreshToken();
-                else
-                {
-                  this.tokenTimer = setTimeout(this.refreshToken, expiration - 100000 - Date.now());
-                }
-              }
-            }
-          }
-        }
-    },
-  beforeDestroy()
-  {
-    if (this.tokenTimer) clearTimeout(this.tokenTimer);
-  },
-  methods:
-    {
-      ...mapMutations([SET_TOKEN]),
-      refreshToken()
-      {
-        this.tokenTimer = null;
-        this.$axios.post('/refresh', null, {
-          spinner: (show) => false, // do not show a spinner
-        }).then(response =>
-        {
-          if (response)
-          {
-            // update access token
-            this[SET_TOKEN](response);
-          }
-        });
-      },
-    }
 };
 </script>
 

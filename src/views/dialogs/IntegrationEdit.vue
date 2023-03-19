@@ -13,8 +13,9 @@
           <h2 align="center" class="py-3">Edit: {{ (integration || {}).name }}</h2>
           <v-data-table :items="temp.sources || []" :headers="tblHeader" item-key="id" class="my_tbl" dense :options="pagination" disable-pagination hide-default-footer disable-sort>
             <template #item.rows="{item}">
-              <v-select v-if="item.id < 0" v-model="item.templateId" :items="$root.integrationTemplates" label="Integration template" outlined dense
-                        :rules="[ruleRequired]" hide-details="auto" menu-props="offsetY" class="my-1" style="max-width: 240px;" background-color="white"
+              <v-select
+                v-if="item.id < 0" v-model="item.templateId" :items="$root.integrationTemplates" label="Integration template" outlined dense
+                :rules="[ruleRequired]" hide-details="auto" menu-props="offsetY" class="my-1" style="max-width: 240px;" background-color="white"
               />
               <template v-else>{{ item.rowsProcessed }}</template>
             </template>
@@ -34,8 +35,9 @@
           </v-data-table>
         </v-card-text>
         <v-card-actions class="flex-column align-stretch px-4">
-          <v-file-input v-model="files" label="Add sources" outlined dense clearable accept=".csv,.xls,.xlsx"
-                        prepend-icon="" prepend-inner-icon="mdi-paperclip" hide-details multiple class="mb-4"
+          <v-file-input
+            v-model="files" label="Add sources" outlined dense clearable accept=".csv,.xls,.xlsx"
+            prepend-icon="" prepend-inner-icon="mdi-paperclip" hide-details multiple class="mb-4"
           />
           <div class="d-flex justify-center">
             <v-btn color="success" min-width="100px" class="mr-2" @click="updateIntegration">Save</v-btn>

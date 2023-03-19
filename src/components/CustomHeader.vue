@@ -1,6 +1,6 @@
 <template>
   <v-app-bar color="primary" dark app clipped-left dense>
-    <template v-if="GET_TOKEN">
+    <template v-if="loggedIn">
       <v-spacer />
       <v-btn color="amber" light @click="doLogout">Logout</v-btn>
     </template>
@@ -8,22 +8,21 @@
 </template>
 
 <script>
-import { GET_TOKEN, SET_TOKEN } from '@/store/names.js';
-import { mapGetters, mapMutations } from 'vuex';
-
 export default
 {
   name: 'CustomHeader',
   computed:
     {
-      ...mapGetters([GET_TOKEN]),
+      loggedIn()
+      {
+        return this.$msal.isAuthenticated();
+      }
     },
   methods:
     {
-      ...mapMutations([SET_TOKEN]),
       doLogout()
       {
-        this[SET_TOKEN]();
+        this.$msal.signOut();
         this.$router.push({ name: 'Login' });
       }
     }

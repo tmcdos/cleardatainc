@@ -7,8 +7,9 @@
         </v-text-field>
       </div>
     </template>
-    <v-date-picker v-model="dateValue" first-day-of-week="1" locale-first-day-of-year="4" show-week
-                   :allowed-dates="allowed" :min="minimal" :max="maximal" @change="sendValue"
+    <v-date-picker
+      v-model="dateValue" first-day-of-week="1" locale-first-day-of-year="4" show-week
+      :allowed-dates="allowed" :min="minimal" :max="maximal" @change="sendValue"
     />
   </v-menu>
 </template>

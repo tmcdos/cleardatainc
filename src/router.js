@@ -1,7 +1,5 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import store from './store';
-import { GET_TOKEN } from '@/store/names.js';
 
 import LoginPage from './views/LoginPage';
 import badRoute from './views/BadRoute';
@@ -72,7 +70,7 @@ router.afterEach(to =>
 
 router.beforeEach((to, from, next) =>
 {
-  if (to.meta.public || store.getters[GET_TOKEN] || to.name === 'Login') next();
+  if (to.meta.public || Vue.prototype.$msal.isAuthenticated() || to.name === 'Login') next();
   else next({ name: 'Login' });
 });
 

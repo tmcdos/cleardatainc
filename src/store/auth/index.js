@@ -35,12 +35,7 @@ export default
     {
       [SET_TOKEN](state, token)
       {
-        state.token = token
-          ? {
-              ...token,
-              expiration: new Date(Date.now() + token.expires_in * 1000)
-            }
-          : null;
+        state.token = token;
         if (!token)
         {
           state.userData = Object.assign({}, emptyUser);
